@@ -1,36 +1,11 @@
 <?php
-error_reporting( E_ALL | E_STRICT );
+/*Initialize Database Connection*/
 $db= new mysqli("84.39.119.213", "rootwerk_mfFC", "NQs.hR#6!HCD", "rootwerk_mfFusionCoins");
 	if ($db->connect_error) {
 		die("Couldn't Connect to MySQL Database.\nError (" . $db->connect_errno . "): " . $db->connect_error);
 	}
-   //==========//
-  // Request  //
- // Variables//
-//==========//
-if (isset($_GET['action'])){
-	print("<h2 style='color:red;'>WARNING: Using GET requests to interact with this system is insecure and is available only during the development of this API!</h2>");
-	print("Passed GET request variables:<br>");
-	print("SteamID: " . $_GET["steamID"] . "<br>");
-	print("Action: " . $_GET["action"] . "<br>");
-	if (isset($_GET['action']) && empty($_POST['action'])) {
-		$action = $_GET['action'];
-	}
-	if (isset($_GET['steamID']) && empty($_POST['steamID'])) {
-		$steamID = $_GET['steamID'];
-	}
-}
-elseif (isset($_POST['action'])) {
-	if (isset($_POST['action']) && empty($_POST['action'])) {
-		$action = $_POST['action'];
-	}
-	if (isset($_POST['steamID']) && empty($_POST['steamID'])) {
-		$steamID = $_POST['steamID'];
-	}
-}
-  //===========//
- // Functions //
-//===========//
+
+/*Define internal functions*/
 function userExists($steamID) {
 	//Query Database to check if there is a steamID that matches the input
 	global $db;
@@ -42,25 +17,6 @@ function userExists($steamID) {
 	}
 	else {
 		return FALSE;
-	}
-}
-
-function addUser($steamID) {
-	global $db;
-	$sql = "INSERT INTO users (SteamID) VALUES('" . $steamID . "');";
-	$query = $db->query($sql);
-	if ($query === FALSE) {
-		printf("Error: Unable to update table. (" . $db->error . ")");
-	}
-	
-	$sql2 = "SELECT UID FROM users WHERE SteamID='" . $steamID . "';";
-	$query2 = $db->query($sql2);
-	$result2 = $query2->fetch_assoc();
-	
-	$sql3 ="INSERT INTO vault (UID) VALUES(" . $result2["UID"] . ");"
-	$query3 = $db->query($sql3);
-	if ($query3 === FALSE) {
-		printf("Error: Unable to update table. (" . $db->error . ")");
 	}
 }
 
@@ -77,6 +33,27 @@ function getUID($steamID) {
 		die("Unable to retrieve UID. No matching user.");
 	}
 }
+
+function addUser($steamID) {
+	global $db;
+	$sql = "INSERT INTO users (SteamID) VALUES('" . $steamID . "');";
+	$query = $db->query($sql);
+	if ($query === FALSE) {
+		die("Error: Unable to add user. (" . $db->error . ")");
+	}
+	
+	$sql2 = "SELECT UID FROM users WHERE SteamID='" . $steamID . "';";
+	$query2 = $db->query($sql2);
+	$result2 = $query2->fetch_assoc();
+	
+	$sql3 ="INSERT INTO vault (UID) VALUES(" . $result2["UID"] . ");"
+	$query3 = $db->query($sql3);
+	if ($query3 === FALSE) {
+		die("Error: Unable to add user to vault. (" . $db->error . ")");
+	}
+	return getUID($steamID);
+}
+
 function getBalance($UID) {
 	global $db;
 	if (!empty($UID)) {
@@ -90,16 +67,17 @@ function getBalance($UID) {
 	}
 }
 
-function setCoin($UID, $ammount) {
+function setCoin($UID, $amount) {
 	global $db;
-	$sql = "UPDATE vault SET balance=" . $ammount . " WHERE UID=" . $UID . ";";
+	$sql = "UPDATE vault SET balance=" . $amount . " WHERE UID=" . $UID . ";";
 	$query = $db->query($sql);
 	if ($query === FALSE) {
-		printf("Error: Unable to update table. (" . $db->error . ")");
+		die("Error: Unable to update user balance. (" . $db->error . ")");
 	}
+	
 }
 
-function addCoin($UID, $ammount) {
+function addCoin($UID, $amount) {
 	global $db;
 	if (!empty($UID)) {
 		$currentBalance = getBalance($UID);
@@ -107,11 +85,11 @@ function addCoin($UID, $ammount) {
 	else {
 		die("Unable to retrieve balance. UID is empty");
 	}
-	$newBalance = $currentBalance + $ammount;
+	$newBalance = $currentBalance + $amount;
 	setCoin($UID, $newBalance);
 }
 
-function subtractCoin($UID, $ammount) {
+function subtractCoin($UID, $amount) {
 	global $db;
 	if (!empty($UID)) {
 		$currentBalance = getBalance($UID);
@@ -119,7 +97,7 @@ function subtractCoin($UID, $ammount) {
 	else {
 		die("Unable to retrieve balance. UID is empty");
 	}
-	$newBalance = $currentBalance - $ammount;
+	$newBalance = $currentBalance - $amount;
 	setCoin($UID, $newBalance);
 }
 
@@ -141,7 +119,7 @@ function lockUser($UID) {
 	$sql = "UPDATE users SET locked=1;";
 	$query = $db->query($sql);
 	if ($query === FALSE) {
-		printf("Error: Unable to update table. (" . $db->error . ")");
+		die("Error: Unable to update table. (" . $db->error . ")");
 	}
 }
 
@@ -150,10 +128,109 @@ function unlockUser($UID) {
 	$sql = "UPDATE users SET locked=0;";
 	$query = $db->query($sql);
 	if ($query === FALSE) {
-		printf("Error: Unable to update table. (" . $db->error . ")");
+		die("Error: Unable to update table. (" . $db->error . ")");
 	}
 }
+/*create easy to use variables for Request variables*/
+if (isset($_GET['action'])){
+	print("<h2 style='color:red;'>WARNING: Using GET requests to interact with this system is insecure and is available only during the development of this API!</h2>");
+	print("Passed GET request variables:<br>");
+	print("SteamID: " . $_GET["steamID"] . "<br>");
+	print("Action: " . $_GET["action"] . "<br>");
+	if (isset($_GET['action']) && empty($_POST['action'])) {
+		$action = $_GET['action'];
+	}
+	if (isset($_GET['steamID']) && empty($_POST['steamID'])) {
+		$steamID = $_GET['steamID'];
+	}
+}
+elseif (isset($_POST['action'])) {
+	if (isset($_POST['action']) && empty($_POST['action'])) {
+		$action = $_POST['action'];
+	}
+	if (isset($_POST['steamID']) && empty($_POST['steamID'])) {
+		$steamID = $_POST['steamID'];
+	}
+}
+if (userExists($steamID){
+	$uid = getUID($steamID);
+}
+else {
+	die("User does not exist please create first!")
+}
+elseif($action === "addUser"){}
+if(isset($_POST["amount"]) {
+	$amount = $_POST["amount"];
+}
 
+/*Case to handle HTTP Requests*/
+case($action) {
+	switch "addUser":
+			if(!userExists($steamID)){
+				addUser($steamID);
+				$uid = getUID($steamID);
+				print $uid; //Return something useful in JSON or XML
+			}
+			else{
+				print("User Exists! Will not create!");
+			}
+	break;
+	switch "balance":
+		if(userExists($steamID){
+			print getBalance($uid); //Return something useful in JSON or XML
+		}
+	break;
+	switch "addCoin":
+		if(userExists($steamID){
+			$uid = getUID($steamID);
+			addCoin($uid, $ammount);
+			//Return something useful in JSON or XML
+		}
+	break;
+	switch "subtractCoin":
+		if(userExists($steamID){
+			$uid = getUID($steamID);
+			subtractCoin($uid, $ammount);
+			//Return something useful in JSON or XML
+		}
+	break;
+	switch "setCoin":
+		if(userExists($steamID){
+			$uid = getUID($steamID);
+			setCoin($uid, $ammount);
+			//Return something useful in JSON or XML
+		}
+	break;
+	switch "accountStatus":
+		if(userExists($steamID){
+			$uid = getUID($steamID);
+			$balance = getBalance($uid);
+			$lock = isLocked($uid);
+			//Return something useful in JSON or XML
+		}
+	break;
+	switch "isLocked":
+		if(userExists($steamID){
+			$uid = getUID($steamID);
+			$lock = isLocked($uid);
+			print $lock;
+		}
+	break;
+	switch "lockUser":
+		if(userExists($steamID){
+			$uid = getUID($steamID);
+			lockUser($uid);
+			//Return something useful in JSON or XML
+		}
+	break;
+	switch "unlockUser":
+		if(userExists($steamID){
+			$uid = getUID($steamID);
+			unlockUser($uid);
+			//Return something useful in JSON or XML
+		}
+	break;
+}
    //=======//
   // Tests //
  //=======//
