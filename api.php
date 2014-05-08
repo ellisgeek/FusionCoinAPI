@@ -46,7 +46,7 @@ function addUser($steamID) {
 	$query2 = $db->query($sql2);
 	$result2 = $query2->fetch_assoc();
 	
-	$sql3 ="INSERT INTO vault (UID) VALUES(" . $result2["UID"] . ");"
+	$sql3 ="INSERT INTO vault (UID) VALUES(" . $result2["UID"] . ");";
 	$query3 = $db->query($sql3);
 	if ($query3 === FALSE) {
 		die("Error: Unable to add user to vault. (" . $db->error . ")");
@@ -152,20 +152,16 @@ elseif (isset($_POST['action'])) {
 		$steamID = $_POST['steamID'];
 	}
 }
-if (userExists($steamID){
-	$uid = getUID($steamID);
-}
-else {
-	die("User does not exist please create first!")
-}
+
+if (userExists($steamID)){$uid = getUID($steamID);}
 elseif($action === "addUser"){}
-if(isset($_POST["amount"]) {
-	$amount = $_POST["amount"];
-}
+else {die("User does not exist please create first!");}
+
+if(isset($_POST["amount"]) {$amount = $_POST["amount"];}
 
 /*Case to handle HTTP Requests*/
-case($action) {
-	switch "addUser":
+switch($action) {
+	case "addUser":
 			if(!userExists($steamID)){
 				addUser($steamID);
 				$uid = getUID($steamID);
@@ -175,56 +171,56 @@ case($action) {
 				print("User Exists! Will not create!");
 			}
 	break;
-	switch "balance":
-		if(userExists($steamID){
+	case "balance":
+		if(userExists($steamID)){
 			print getBalance($uid); //Return something useful in JSON or XML
 		}
 	break;
-	switch "addCoin":
-		if(userExists($steamID){
+	case "addCoin":
+		if(userExists($steamID)){
 			$uid = getUID($steamID);
 			addCoin($uid, $ammount);
 			//Return something useful in JSON or XML
 		}
 	break;
-	switch "subtractCoin":
-		if(userExists($steamID){
+	case "subtractCoin":
+		if(userExists($steamID)){
 			$uid = getUID($steamID);
 			subtractCoin($uid, $ammount);
 			//Return something useful in JSON or XML
 		}
 	break;
-	switch "setCoin":
-		if(userExists($steamID){
+	case "setCoin":
+		if(userExists($steamID)){
 			$uid = getUID($steamID);
 			setCoin($uid, $ammount);
 			//Return something useful in JSON or XML
 		}
 	break;
-	switch "accountStatus":
-		if(userExists($steamID){
+	case "accountStatus":
+		if(userExists($steamID)){
 			$uid = getUID($steamID);
 			$balance = getBalance($uid);
 			$lock = isLocked($uid);
 			//Return something useful in JSON or XML
 		}
 	break;
-	switch "isLocked":
-		if(userExists($steamID){
+	case "isLocked":
+		if(userExists($steamID)){
 			$uid = getUID($steamID);
 			$lock = isLocked($uid);
 			print $lock;
 		}
 	break;
-	switch "lockUser":
-		if(userExists($steamID){
+	case "lockUser":
+		if(userExists($steamID)){
 			$uid = getUID($steamID);
 			lockUser($uid);
 			//Return something useful in JSON or XML
 		}
 	break;
-	switch "unlockUser":
-		if(userExists($steamID){
+	case "unlockUser":
+		if(userExists($steamID)){
 			$uid = getUID($steamID);
 			unlockUser($uid);
 			//Return something useful in JSON or XML
