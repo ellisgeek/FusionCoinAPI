@@ -1,8 +1,8 @@
 <?php
 /**
+ *Manage user balance and invintory in FusionCoin
  *
- *
- * @author Elliott Saille
+ * @author Elliott Saille <ellisgeek@live.com>
  * @version 0.0.1
  * @copyright 2014
  * @package FusionCoin
@@ -11,37 +11,82 @@
 /**
  * Define DocBlock
  */
-
-/**
- * User
- * This class handles all functions relating to a users account
- *
- * @package FusionCoin
- * @author  Elliott Saille
- */
 class User {
 	/**
-	 * steamID that is passed to the class when it is created
+	 * This class handles all functions relating to a users account
 	 *
-	 * @var inputSteamID
+	 * @package FusionCoin
+	 * @author  Elliott Saille
 	 */
-	private $inputSteamID;
 
 	/**
 	 * steamID that is passed to the class when it is created
 	 *
-	 * @var inputSteamID
+	 * @var string
+	 * @access protected
 	 */
-	private $userInfo;
+	protected $inputSteamID;
+
+
+	/**
+	 * Array of current user info as returned from MySQL
+	 *
+	 * @var array
+	 * @access protected
+	 */
+	protected $userInfo;
+
+	/**
+	 * Array of current user info as returned from MySQL
+	 *
+	 * @var array
+	 * @access private
+	 */
 	var $steamID;
+
+	/**
+	 * Users Balance
+	 *
+	 * @var integer
+	 * @access public
+	 */
 	var $balance;
+
+	/**
+	 * Array of user's invintory
+	 *
+	 * @var array
+	 * @access public
+	 */
 	var $inventory;
+
+	/**
+	 * Users account status. True if account is locked or false if it's not.
+	 *
+	 * @var boolean
+	 * @access public
+	 */
 	var $locked;
 
+
+
+	/**
+	 * Database Connection
+	 *
+	 * @var object
+	 * @access protected
+	 */
 	protected $db;
 
 
 	function __construct($steamID) {
+		/**
+	 	 * Initalize class and get current user info
+		 *
+		 * @return void
+		 * @author  Elliott Saille
+		 */
+
 		// Set input SteamID when class is created
 		$this->inputSteamID = $steamID;
 
@@ -67,6 +112,12 @@ class User {
 
 
 	private function getInfo() {
+		/**
+		 * Get user info from MYSQL DB
+		 *
+		 * @return void
+		 * @author  Elliott Saille
+		 */
 		$sql = "SELECT * FROM " . DB_PREFIX . "users WHERE steamID='"
 				. $this->inputSteamID . "';";
 		$query = $this->db->query($sql);
@@ -74,12 +125,18 @@ class User {
 
 		$this->steamID   = $this->userInfo["steamID"];
 		$this->balance   = $this->userInfo["balance"];
-		$this->inventory = $this->userInfo["inventory"];
+		$this->inventory = json_decode($this->userInfo["inventory"]);
 		$this->locked    = $this->userInfo["locked"];
 	}
 
 
 	private function setBalance($amount) {
+		/**
+		 * Set the users balance to a arbitrary ammount
+		 *
+		 * @return array
+		 * @author  Elliott Saille
+		 */
 		$sql = "UPDATE " . DB_PREFIX . "users SET balance=" . $amount .
 				" WHERE steamID=" . $this->steamID . ";";
 		$query = $this->db->query($sql);
@@ -87,19 +144,42 @@ class User {
 			die("Error: Unable to update balance for user " . $this->steamID
 					. ". (" . $this->db->error . ")");
 		}
+		$oldBalance=$this->balance;
+		$this->getInfo();
+		$newBalance=$this->balance;
+		return array("oldBalance"=>$oldBalance, "newBalance"=>$newBalance);
 	}
 
 	function addCoin($amount) {
+		/**
+		 * Add money to a users account
+		 *
+		 * @return void
+		 * @author  Elliott Saille
+		 */
 		$newBalance = $this->balance + $amount;
 		$this->setBalance($newBalance);
 	}
 
 	function subtractCoin($amount) {
+		/**
+		 * Subtract money from a users account
+		 *
+		 * @return void
+		 * @author  Elliott Saille
+		 */
 		$newBalance = $this->balance + $amount;
 		$this->setBalance($newBalance);
 	}
 
 	function giveCoin($user, $amount) {
+		/**
+		 * Transfer money from one user to another
+		 *
+		 * @return void
+		 * @author  Elliott Saille
+		 */
+
 		//Get balance of recieving user
 		$sql = "SELECT balance FROM " . DB_PREFIX . "users WHERE steamID='"
 				. $this->steamID . "';";
@@ -120,21 +200,41 @@ class User {
 		$this->subtractCoin($amount);
 	}
 	function lock() {
+		/**
+		 * Lock a Users Account
+		 *
+		 * @return array
+		 * @author  Elliott Saille
+		 */
 		$sql = "UPDATE " . DB_PREFIX . "users SET locked=1 WHERE steamID="
 				. $this->steamID . ";";
 		$query = $this->db->query($sql);
 		if ($query === FALSE) {
 			die("Error: Unable to lock user " . $this-steamID . ". (" . $this->db->error . ")");
 		}
+		$oldStatus=$this->locked;
+		$this->getInfo();
+		$newStatus=$this->locked;
+		return array("oldStatus"=>$oldStatus, "newStatus"=>$newStatus);
 	}
 
-	function unlock($UID) {
+	function unlock() {
+		/**
+		 * UnLock a Users Account
+		 *
+		 * @return array
+		 * @author  Elliott Saille
+		 */
 		$sql = "UPDATE " . DB_PREFIX . "users SET locked=0 WHERE steamID="
 				. $this->steamID . ";";
 		$query = $this->db->query($sql);
 		if ($query === FALSE) {
 			die("Error: Unable to unlock user " . $this-steamID . ". (" . $this->db->error . ")");
 		}
+		$oldStatus=$this->locked;
+		$this->getInfo();
+		$newStatus=$this->locked;
+		return array("oldStatus"=>$oldStatus, "newStatus"=>$newStatus);
 	}
 }
 ?>

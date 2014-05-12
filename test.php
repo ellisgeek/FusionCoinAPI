@@ -11,5 +11,5 @@ print $user->steamID . "\n";
 print $user->balance . "\n";
 print $user->locked . "\n";
 print "\nInventory:\n";
-var_dump(json_decode($user->inventory));
+var_dump($user->inventory);
 ?>
