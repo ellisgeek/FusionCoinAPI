@@ -1,12 +1,19 @@
 <?php
 /**
+<<<<<<< HEAD
  *Manage user balance and invintory in FusionCoin
  *
  * @author Elliott Saille <ellisgeek@live.com>
+=======
+ *
+ *
+ * @author Elliott Saille
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
  * @version 0.0.1
  * @copyright 2014
  * @package FusionCoin
  */
+<<<<<<< HEAD
 
 /**
  * Define DocBlock
@@ -42,6 +49,34 @@ class User {
 	 * @var array
 	 * @access private
 	 */
+=======
+
+/**
+ * Define DocBlock
+ */
+
+/**
+ * User
+ * This class handles all functions relating to a users account
+ *
+ * @package FusionCoin
+ * @author  Elliott Saille
+ */
+class User {
+	/**
+	 * steamID that is passed to the class when it is created
+	 *
+	 * @var inputSteamID
+	 */
+	private $inputSteamID;
+
+	/**
+	 * steamID that is passed to the class when it is created
+	 *
+	 * @var inputSteamID
+	 */
+	private $userInfo;
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
 	var $steamID;
 
 	/**
@@ -112,12 +147,15 @@ class User {
 
 
 	private function getInfo() {
+<<<<<<< HEAD
 		/**
 		 * Get user info from MYSQL DB
 		 *
 		 * @return void
 		 * @author  Elliott Saille
 		 */
+=======
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
 		$sql = "SELECT * FROM " . DB_PREFIX . "users WHERE steamID='"
 				. $this->inputSteamID . "';";
 		$query = $this->db->query($sql);
@@ -131,12 +169,15 @@ class User {
 
 
 	private function setBalance($amount) {
+<<<<<<< HEAD
 		/**
 		 * Set the users balance to a arbitrary ammount
 		 *
 		 * @return array
 		 * @author  Elliott Saille
 		 */
+=======
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
 		$sql = "UPDATE " . DB_PREFIX . "users SET balance=" . $amount .
 				" WHERE steamID=" . $this->steamID . ";";
 		$query = $this->db->query($sql);
@@ -144,6 +185,7 @@ class User {
 			die("Error: Unable to update balance for user " . $this->steamID
 					. ". (" . $this->db->error . ")");
 		}
+<<<<<<< HEAD
 		$oldBalance=$this->balance;
 		$this->getInfo();
 		$newBalance=$this->balance;
@@ -157,22 +199,31 @@ class User {
 		 * @return void
 		 * @author  Elliott Saille
 		 */
+=======
+	}
+
+	function addCoin($amount) {
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
 		$newBalance = $this->balance + $amount;
 		$this->setBalance($newBalance);
 	}
 
 	function subtractCoin($amount) {
+<<<<<<< HEAD
 		/**
 		 * Subtract money from a users account
 		 *
 		 * @return void
 		 * @author  Elliott Saille
 		 */
+=======
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
 		$newBalance = $this->balance + $amount;
 		$this->setBalance($newBalance);
 	}
 
 	function giveCoin($user, $amount) {
+<<<<<<< HEAD
 		/**
 		 * Transfer money from one user to another
 		 *
@@ -180,6 +231,8 @@ class User {
 		 * @author  Elliott Saille
 		 */
 
+=======
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
 		//Get balance of recieving user
 		$sql = "SELECT balance FROM " . DB_PREFIX . "users WHERE steamID='"
 				. $this->steamID . "';";
@@ -200,18 +253,22 @@ class User {
 		$this->subtractCoin($amount);
 	}
 	function lock() {
+<<<<<<< HEAD
 		/**
 		 * Lock a Users Account
 		 *
 		 * @return array
 		 * @author  Elliott Saille
 		 */
+=======
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
 		$sql = "UPDATE " . DB_PREFIX . "users SET locked=1 WHERE steamID="
 				. $this->steamID . ";";
 		$query = $this->db->query($sql);
 		if ($query === FALSE) {
 			die("Error: Unable to lock user " . $this-steamID . ". (" . $this->db->error . ")");
 		}
+<<<<<<< HEAD
 		$oldStatus=$this->locked;
 		$this->getInfo();
 		$newStatus=$this->locked;
@@ -225,16 +282,24 @@ class User {
 		 * @return array
 		 * @author  Elliott Saille
 		 */
+=======
+	}
+
+	function unlock($UID) {
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
 		$sql = "UPDATE " . DB_PREFIX . "users SET locked=0 WHERE steamID="
 				. $this->steamID . ";";
 		$query = $this->db->query($sql);
 		if ($query === FALSE) {
 			die("Error: Unable to unlock user " . $this-steamID . ". (" . $this->db->error . ")");
 		}
+<<<<<<< HEAD
 		$oldStatus=$this->locked;
 		$this->getInfo();
 		$newStatus=$this->locked;
 		return array("oldStatus"=>$oldStatus, "newStatus"=>$newStatus);
+=======
+>>>>>>> 8016c4d2efcccd5996041a40664806ab3f02afa2
 	}
 }
 ?>
